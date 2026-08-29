@@ -1,0 +1,8 @@
+.env
+vendor/
+data/*.json
+data/cache/
+logs/
+*.log
+.bundle/
+tmp/
