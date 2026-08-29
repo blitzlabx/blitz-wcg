@@ -74,14 +74,27 @@ module BlitzWCG
     end
 
     def process_update(update)
-      if update.message
-        if update.message.text&.start_with?('/')
-          @commands.handle(update.message)
+      message = nil
+      callback = nil
+
+      if update.is_a?(Telegram::Bot::Types::Message)
+        message = update
+      elsif update.is_a?(Telegram::Bot::Types::CallbackQuery)
+        callback = update
+      elsif update.respond_to?(:message) && update.message
+        message = update.message
+      elsif update.respond_to?(:callback_query) && update.callback_query
+        callback = update.callback_query
+      end
+
+      if message
+        if message.text&.start_with?('/')
+          @commands.handle(message)
         else
-          @messages.handle(update.message)
+          @messages.handle(message)
         end
-      elsif update.callback_query
-        @callbacks.handle(update.callback_query)
+      elsif callback
+        @callbacks.handle(callback)
       end
     rescue => e
       Config.logger.error("Update error: #{e.class} #{e.message}\n#{e.backtrace&.first(5)&.join("\n")}")
